@@ -2,10 +2,37 @@ import { SignIn, SignOutButton, useUser } from "@clerk/nextjs";
 import Head from "next/head";
 import { api } from "~/utils/api";
 
+type ListViewProps = {
+    listId: string
+}
+
+const ListView = ({ listId }: ListViewProps) => {
+    const { data, isLoading } = api.listItem.byListId.useQuery({ listId });
+
+    if (!data) return <div />;
+
+    const listItems = data.map((listItem) => {
+        return <li key={listItem.id}>{listItem.item.name} - {listItem.quantity}</li>
+    })
+
+    return (
+        <>
+            <ul>
+                {listItems}
+            </ul>
+        </>
+    )
+}
+
 export default function Home() {
-    const items = api.example.getAll.useQuery();
-    const itemsList = items.data?.map((item) => {
-        return <p className="text-2xl text-zinc-100" key={item.id}>{item.name}</p>;
+    const listsData = api.list.byCurrentUser.useQuery();
+    const lists = listsData.data?.map((list) => {
+        return (
+            <>
+                <p className="text-2xl text-zinc-100" key={list.id}>{list.name}</p>
+                <ListView listId={list.id} />
+            </>
+        );
     });
 
     const { isLoaded: userLoaded, isSignedIn } = useUser();
@@ -20,14 +47,14 @@ export default function Home() {
                 <link rel="icon" href="/favicon.ico" />
             </Head>
             <main className="flex min-h-screen flex-col items-center justify-center bg-steel-900">
-                <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
+                <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 text-zinc-100">
                     <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
                         Grindlists
                     </h1>
                     {!isSignedIn && (
                         <SignIn />
                     )}
-                    {isSignedIn && (itemsList)}
+                    {isSignedIn && (lists)}
                     {isSignedIn && (<SignOutButton />)}
                 </div>
             </main>

@@ -18,5 +18,32 @@ model Item {
     name String @db.VarChar(255)
     authorId String
 
+    listItems ListItem[]
+
     @@index([authorId])
+}
+
+model List {
+    id String @id @default(cuid())
+    createdAt DateTime @default(now())
+
+    name String @db.VarChar(255)
+    authorId String
+
+    listItems ListItem[]
+
+    @@index([authorId])
+}
+
+model ListItem {
+    id String @id @default(cuid())
+    createdAt DateTime @default(now())
+
+    item Item @relation(fields: [itemId], references: [id])
+    itemId String
+
+    list List @relation(fields: [listId], references: [id])
+    listId String
+
+    quantity Int
 }
