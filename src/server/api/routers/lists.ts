@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, privateProcedure, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
 
 export const listRouter = createTRPCRouter({
     byCurrentUser: privateProcedure.query(({ ctx }) => {
@@ -9,4 +9,26 @@ export const listRouter = createTRPCRouter({
             }
         });
     }),
+    byId: privateProcedure.input(z.object({
+        listId: z.string(),
+    })).query(({ ctx, input }) => {
+        return ctx.prisma.list.findUnique({
+            where: {
+                id: input.listId,
+            },
+            include: {
+                listItems: true
+            }
+        });
+    }),
+    create: privateProcedure.input(z.object({
+        name: z.string(),
+    })).mutation(({ ctx, input }) => {
+        return ctx.prisma.list.create({
+            data: {
+                name: input.name,
+                authorId: ctx.userId
+            }
+        })
+    })
 })
