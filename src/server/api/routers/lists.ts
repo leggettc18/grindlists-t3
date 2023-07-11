@@ -38,5 +38,5 @@ export const listRouter = createTRPCRouter({
                 authorId: ctx.userId
             }
         });
-    })
+    }),
 })
