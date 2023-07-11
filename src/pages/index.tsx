@@ -18,7 +18,7 @@ const ListItemView = ({ listItem }: ListItemViewProps) => {
     })
     return (
         <>
-            <li className="flex items-center">
+            <li className="flex items-center justify-between">
                 <div className="text-3xl">
                     {listItem.item.name}
                 </div>
@@ -64,7 +64,7 @@ const ListView = ({ listId }: ListViewProps) => {
 
     return (
         <>
-            <ul>
+            <ul className="flex flex-col">
                 {listItems}
             </ul>
         </>
@@ -75,10 +75,10 @@ export default function Home() {
     const listsData = api.list.byCurrentUser.useQuery();
     const lists = listsData.data?.map((list) => {
         return (
-            <>
-                <p className="text-5xl text-zinc-100" key={list.id}>{list.name}</p>
+            <div key={list.id}>
+                <p className="text-5xl text-zinc-100 py-10">{list.name}</p>
                 <ListView listId={list.id} />
-            </>
+            </div>
         );
     });
 
