@@ -4,23 +4,20 @@ import Link from "next/link";
 import { LoadingSpinner } from "~/components/loading";
 import { api } from "~/utils/api";
 
-
+const ListsView = () => {
+    const { data, isLoading } = api.list.byCurrentUser.useQuery();
+    if (isLoading) return <LoadingSpinner size={48} />;
+    if (!data) return <div />;
+    const lists = data.map((list) => {
+        return <div key={list.id}>
+            <Link href={`/list/${list.id}`} className="hover:underline">{list.name}</Link>
+        </div>
+    });
+    return <>{lists}</>
+}
 
 export default function Home() {
-    const { isLoaded: userLoaded, isSignedIn } = useUser();
-    const { data, isLoading } = api.list.byCurrentUser.useQuery();
-    if (isLoading) <LoadingSpinner size={48} />
-    const lists = data?.map((list) => {
-        return (
-            <div key={list.id}>
-                <Link href={`/list/${list.id}`} className="hover:underline">{list.name}</Link>
-            </div>
-        );
-    });
-
-
-    if (!userLoaded) return <div />
-
+    const { /*isLoaded: userLoaded,*/ isSignedIn } = useUser();
     return (
         <>
             <Head>
@@ -36,7 +33,7 @@ export default function Home() {
                     {!isSignedIn && (
                         <SignIn />
                     )}
-                    {isSignedIn && (lists)}
+                    <ListsView />
                     {isSignedIn && (<SignOutButton />)}
                 </div>
             </main>
