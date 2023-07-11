@@ -17,4 +17,30 @@ export const listItemRouter = createTRPCRouter({
             }
         });
     }),
+    create: privateProcedure.input(z.object({
+        itemId: z.string(),
+        listId: z.string(),
+        quantity: z.number().min(0).default(0),
+    })).mutation(({ ctx, input }) => {
+        return ctx.prisma.listItem.create({
+            data: {
+                itemId: input.itemId,
+                listId: input.listId,
+                quantity: input.quantity,
+            }
+        });
+    }),
+    update: privateProcedure.input(z.object({
+        listItemId: z.string(),
+        quantity: z.number().min(0),
+    })).mutation(({ ctx, input }) => {
+        return ctx.prisma.listItem.update({
+            where: {
+                id: input.listItemId,
+            },
+            data: {
+                quantity: input.quantity,
+            }
+        });
+    }),
 })

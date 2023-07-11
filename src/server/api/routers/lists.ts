@@ -1,3 +1,4 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { createTRPCRouter, privateProcedure } from "~/server/api/trpc";
 
@@ -11,24 +12,31 @@ export const listRouter = createTRPCRouter({
     }),
     byId: privateProcedure.input(z.object({
         listId: z.string(),
-    })).query(({ ctx, input }) => {
-        return ctx.prisma.list.findUnique({
+    })).query(async ({ ctx, input }) => {
+        const list = await ctx.prisma.list.findUnique({
             where: {
                 id: input.listId,
             },
             include: {
-                listItems: true
+                listItems: {
+                    include: {
+                        item: true,
+                    }
+                }
             }
         });
+        if (!list) throw new TRPCError({ code: "NOT_FOUND" })
+        if (list.authorId !== ctx.userId) throw new TRPCError({ code: "FORBIDDEN" });
+        return list;
     }),
     create: privateProcedure.input(z.object({
-        name: z.string(),
+        name: z.string().min(1).max(150),
     })).mutation(({ ctx, input }) => {
         return ctx.prisma.list.create({
             data: {
                 name: input.name,
                 authorId: ctx.userId
             }
-        })
+        });
     })
 })

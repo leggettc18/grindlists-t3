@@ -1,18 +1,65 @@
 import { SignIn, SignOutButton, useUser } from "@clerk/nextjs";
+import type { Item, ListItem } from "@prisma/client";
 import Head from "next/head";
+import { useState } from "react";
 import { api } from "~/utils/api";
+
+type ListItemViewProps = {
+    listItem: ListItem & { item: Item }
+}
+
+const ListItemView = ({ listItem }: ListItemViewProps) => {
+    const ctx = api.useContext();
+    const [quantity, setQuantity] = useState(listItem.quantity);
+    const { mutate: update, isLoading: isUpdating } = api.listItem.update.useMutation({
+        onSuccess: () => {
+            void ctx.list.byId.invalidate();
+        }
+    })
+    return (
+        <>
+            <li className="flex items-center">
+                <div className="text-3xl">
+                    {listItem.item.name}
+                </div>
+
+                <div className="flex text-3xl md:text-lg">
+                    <button
+                        onClick={() => setQuantity(value => {
+                            update({ listItemId: listItem.id, quantity: value + 1 });
+                            return value + 1;
+                        })}
+                        className="px-2 mx-1 rounded-l-xl bg-seagreen-500"
+                    >
+                        +
+                    </button>
+                    {quantity}
+                    <button
+                        onClick={() => setQuantity(value => {
+                            update({ listItemId: listItem.id, quantity: value - 1 });
+                            return value - 1;
+                        })}
+                        className="px-2 mx-1 rounded-r-xl bg-sunset-600"
+                    >
+                        -
+                    </button>
+                </div>
+            </li>
+        </>
+    );
+}
 
 type ListViewProps = {
     listId: string
 }
 
 const ListView = ({ listId }: ListViewProps) => {
-    const { data, isLoading } = api.listItem.byListId.useQuery({ listId });
+    const { data, isLoading } = api.list.byId.useQuery({ listId });
 
     if (!data) return <div />;
 
-    const listItems = data.map((listItem) => {
-        return <li key={listItem.id}>{listItem.item.name} - {listItem.quantity}</li>
+    const listItems = data.listItems.map((listItem) => {
+        return <ListItemView key={listItem.id} listItem={listItem} />
     })
 
     return (
@@ -29,7 +76,7 @@ export default function Home() {
     const lists = listsData.data?.map((list) => {
         return (
             <>
-                <p className="text-2xl text-zinc-100" key={list.id}>{list.name}</p>
+                <p className="text-5xl text-zinc-100" key={list.id}>{list.name}</p>
                 <ListView listId={list.id} />
             </>
         );
