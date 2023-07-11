@@ -2,6 +2,7 @@ import { SignIn, SignOutButton, useUser } from "@clerk/nextjs";
 import type { Item, ListItem } from "@prisma/client";
 import Head from "next/head";
 import { useState } from "react";
+import { LoadingPage, LoadingSpinner } from "~/components/loading";
 import { api } from "~/utils/api";
 
 type ListItemViewProps = {
@@ -56,6 +57,7 @@ type ListViewProps = {
 const ListView = ({ listId }: ListViewProps) => {
     const { data, isLoading } = api.list.byId.useQuery({ listId });
 
+    if (isLoading) return <LoadingSpinner size={48} />
     if (!data) return <div />;
 
     const listItems = data.listItems.map((listItem) => {
@@ -64,6 +66,7 @@ const ListView = ({ listId }: ListViewProps) => {
 
     return (
         <>
+            <h3 className="text-5xl text-zinc-100 py-10">{data.name}</h3>
             <ul className="flex flex-col">
                 {listItems}
             </ul>
@@ -72,11 +75,10 @@ const ListView = ({ listId }: ListViewProps) => {
 }
 
 export default function Home() {
-    const listsData = api.list.byCurrentUser.useQuery();
+    const listsData = api.list.byCurrentUser.useQuery()
     const lists = listsData.data?.map((list) => {
         return (
             <div key={list.id}>
-                <p className="text-5xl text-zinc-100 py-10">{list.name}</p>
                 <ListView listId={list.id} />
             </div>
         );
