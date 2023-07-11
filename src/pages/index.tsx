@@ -10,8 +10,7 @@ export default function Home() {
     const { isLoaded: userLoaded, isSignedIn } = useUser();
     const { data, isLoading } = api.list.byCurrentUser.useQuery();
     if (isLoading) <LoadingSpinner size={48} />
-    if (!data) return <div>Unauthorized</div>
-    const lists = data.map((list) => {
+    const lists = data?.map((list) => {
         return (
             <div key={list.id}>
                 <Link href={`/list/${list.id}`} className="hover:underline">{list.name}</Link>
