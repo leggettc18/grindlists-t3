@@ -11,6 +11,9 @@ type ListItemViewProps = {
     listItem: ListItem & { item: Item }
 }
 
+let quantityTimeout: NodeJS.Timeout;
+
+
 const ListItemView = ({ listItem }: ListItemViewProps) => {
     const ctx = api.useContext();
     const [quantity, setQuantity] = useState(listItem.quantity);
@@ -19,6 +22,12 @@ const ListItemView = ({ listItem }: ListItemViewProps) => {
             void ctx.list.byId.invalidate();
         }
     })
+    const handleQuantityChange = (listItemId: string, quantity: number) => {
+        clearTimeout(quantityTimeout);
+        quantityTimeout = setTimeout(() => {
+            update({ listItemId, quantity });
+        }, 500);
+    }
     return (
         <>
             <li className="flex items-center justify-between">
@@ -29,7 +38,7 @@ const ListItemView = ({ listItem }: ListItemViewProps) => {
                 <div className="flex text-3xl md:text-lg">
                     <button
                         onClick={() => setQuantity(value => {
-                            update({ listItemId: listItem.id, quantity: value + 1 });
+                            handleQuantityChange(listItem.id, value + 1);
                             return value + 1;
                         })}
                         className="px-2 mx-1 rounded-l-xl bg-seagreen-500"
@@ -39,7 +48,7 @@ const ListItemView = ({ listItem }: ListItemViewProps) => {
                     {quantity}
                     <button
                         onClick={() => setQuantity(value => {
-                            update({ listItemId: listItem.id, quantity: value - 1 });
+                            handleQuantityChange(listItem.id, value - 1);
                             return value - 1;
                         })}
                         className="px-2 mx-1 rounded-r-xl bg-sunset-600"
