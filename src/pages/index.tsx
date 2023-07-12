@@ -15,7 +15,7 @@ const CreateList = () => {
     });
     const [name, setName] = useState("");
     return (
-        <div className="flex w-1/2">
+        <div className="flex w-full md:w-1/2">
             <input
                 className="bg-transparent outline-none border-solid border-b border-b-zinc-900 dark:border-b-zinc-100 grow p-1"
                 type="text"
