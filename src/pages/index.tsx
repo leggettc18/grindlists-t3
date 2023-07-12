@@ -54,7 +54,7 @@ const ListsView = () => {
     if (isLoading) return <LoadingSpinner size={48} />;
     if (!data) return <div />;
     const lists = data.map((list) => {
-        return <div key={list.id} className="border-b border-zinc-300 dark:border-zinc-700 w-full p-2 flex justify-center overflow-y-scoll last:border-none">
+        return <div key={list.id} className="border-b border-zinc-300 dark:border-zinc-700 w-full p-2 flex justify-center last:border-none">
             <Link href={`/list/${list.id}`} className="hover:underline">{list.name}</Link>
         </div>
     });
