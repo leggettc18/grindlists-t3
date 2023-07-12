@@ -54,12 +54,12 @@ const ListsView = () => {
     if (isLoading) return <LoadingSpinner size={48} />;
     if (!data) return <div />;
     const lists = data.map((list) => {
-        return <div key={list.id} className="border-b border-zinc-600 w-full p-2 flex justify-center overflow-y-scoll last:border-none">
+        return <div key={list.id} className="border-b border-zinc-300 dark:border-zinc-700 w-full p-2 flex justify-center overflow-y-scoll last:border-none">
             <Link href={`/list/${list.id}`} className="hover:underline">{list.name}</Link>
         </div>
     });
     return <div className="w-full md:w-1/2">
-        <div className="border border-zinc-900 dark:border-zinc-100 rounded-xl mb-5 max-h-1/2 overflow-y-auto">
+        <div className="border border-zinc-900 dark:border-zinc-100 rounded-xl mb-5 max-h-80 overflow-y-auto">
             {lists}
         </div>
         <CreateList />
