@@ -15,7 +15,7 @@ const CreateList = () => {
     });
     const [name, setName] = useState("");
     return (
-        <div className="flex w-full md:w-1/2">
+        <div className="flex">
             <input
                 className="bg-transparent outline-none border-solid border-b border-b-zinc-900 dark:border-b-zinc-100 grow p-1"
                 type="text"
@@ -54,14 +54,16 @@ const ListsView = () => {
     if (isLoading) return <LoadingSpinner size={48} />;
     if (!data) return <div />;
     const lists = data.map((list) => {
-        return <div key={list.id}>
+        return <div key={list.id} className="border-b border-zinc-600 w-full p-2 flex justify-center overflow-y-scoll last:border-none">
             <Link href={`/list/${list.id}`} className="hover:underline">{list.name}</Link>
         </div>
     });
-    return <>
-        {lists}
+    return <div className="w-full md:w-1/2">
+        <div className="border border-zinc-900 dark:border-zinc-100 rounded-xl mb-5 max-h-1/2 overflow-y-auto">
+            {lists}
+        </div>
         <CreateList />
-    </>
+    </div>
 }
 
 export default function Home() {
@@ -86,5 +88,5 @@ export default function Home() {
                 </div>
             </main>
         </>
-    );
+    )
 }
