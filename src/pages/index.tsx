@@ -67,7 +67,7 @@ const ListsView = () => {
 }
 
 export default function Home() {
-    const { /*isLoaded: userLoaded,*/ isSignedIn } = useUser();
+    const { isLoaded: userLoaded, isSignedIn } = useUser();
     return (
         <>
             <Head>
@@ -83,8 +83,10 @@ export default function Home() {
                     {!isSignedIn && (
                         <SignIn />
                     )}
-                    <ListsView />
-                    {isSignedIn && (<SignOutButton />)}
+                    {isSignedIn && (<>
+                        <ListsView />
+                        {userLoaded && (<SignOutButton />)}
+                    </>)}
                 </div>
             </main>
         </>
