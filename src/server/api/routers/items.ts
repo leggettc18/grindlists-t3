@@ -13,4 +13,24 @@ export const itemRouter = createTRPCRouter({
             }
         });
     }),
-})
+    search: privateProcedure.input(z.object({
+        name: z.string(),
+    })).query(({ ctx, input }) => {
+        return ctx.prisma.item.findMany({
+            where: {
+                name: {
+                    contains: input.name,
+                }
+            }
+        });
+    }),
+    byId: privateProcedure.input(z.object({
+        id: z.string(),
+    })).query(({ ctx, input }) => {
+        return ctx.prisma.item.findUnique({
+            where: {
+                id: input.id
+            },
+        });
+    }),
+});

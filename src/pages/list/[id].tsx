@@ -8,6 +8,78 @@ import useDebounce from "~/hooks/debounce";
 import { generateSSSGHelper } from "~/server/helpers/ssgHelper";
 import { api } from "~/utils/api";
 
+type ListItemAddProps = {
+    listId: string
+}
+
+const ListItemAdd = ({ listId }: ListItemAddProps) => {
+    const ctx = api.useContext();
+    const { mutate: createListItem, isLoading: isCreating } = api.listItem.create.useMutation({
+        onSuccess: () => {
+            setName("");
+            void ctx.list.byId.invalidate();
+        },
+    });
+    const [name, setName] = useState("");
+    const [showResults, setShowResults] = useState(false);
+    const { data: results, isLoading, refetch } = api.item.search.useQuery({ name }, { enabled: false });
+    const { mutate: createItem, isLoading: isCreatingItem, data: newItemData } = api.item.create.useMutation({
+        onSuccess: (data) => {
+            void ctx.item.search.invalidate();
+            createListItem({ itemId: data.id, listId });
+        },
+    })
+    const debouncedSearch = useDebounce(() => {
+        if (name !== "") {
+            void refetch();
+            setShowResults(true);
+        }
+    }, 500)
+    return (
+        <div className="flex flex-col">
+            <div className="flex">
+                <input
+                    className="bg-transparent outline-none border-solid border-b border-b-zinc-900 dark:border-b-zinc-100 grow p-1"
+                    type="text"
+                    value={name}
+                    placeholder="Find or Create an Item"
+                    disabled={isCreating}
+                    onChange={(e) => {
+                        setName(e.target.value);
+                        if (e.target.value === "") {
+                            setShowResults(false);
+                        }
+                        debouncedSearch();
+                    }}
+                />
+            </div>
+            {showResults && (results?.map((result) => {
+                return (
+                    <div
+                        key={result.id}
+                        className="hover:underline"
+                        onClick={() => {
+                            createListItem({ itemId: result.id, listId })
+                        }}>
+                        {result.name}
+                    </div>
+                )
+            }))}
+            {showResults && (
+                <button
+                    onClick={() => {
+                        if (!isCreatingItem) {
+                            createItem({ name });
+                        }
+                    }}
+                >
+                    Create new item for {name}
+                </button>
+            )}
+        </div>
+    )
+}
+
 type ListItemViewProps = {
     listItem: ListItem & { item: Item }
 }
@@ -66,12 +138,13 @@ const ListView = ({ list }: ListViewProps) => {
     })
 
     return (
-        <>
-            <h3 className="text-5xl text-zinc-900 dark:text-zinc-100 py-10">{list.name}</h3>
-            <ul className="flex flex-col w-full md:w-1/3">
+        <div className="flex flex-col w-full md:w-1/2">
+            <h3 className="text-5xl text-zinc-900 dark:text-zinc-100 py-10 flex justify-center">{list.name}</h3>
+            <ul className="flex flex-col mb-10">
                 {listItems}
             </ul>
-        </>
+            <ListItemAdd listId={list.id} />
+        </div>
     )
 }
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>;
