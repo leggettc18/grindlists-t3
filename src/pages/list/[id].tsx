@@ -4,7 +4,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useState } from "react";
 import { LoadingPage } from "~/components/loading";
-import useDebounceEffect from "~/hooks/debounce";
+import useDebounce from "~/hooks/debounce";
 import { generateSSSGHelper } from "~/server/helpers/ssgHelper";
 import { api } from "~/utils/api";
 
@@ -19,12 +19,16 @@ const ListItemView = ({ listItem }: ListItemViewProps) => {
         onSuccess: () => {
             void ctx.list.byId.invalidate();
         }
-    })
-    useDebounceEffect(() => {
+    });
+    const debouncedUpdate = useDebounce(() => {
         if (quantity != listItem.quantity) {
             update({ listItemId: listItem.id, quantity });
         }
-    }, [quantity], 500);
+    });
+    const handleClick = (value: number) => {
+        setQuantity(value);
+        debouncedUpdate();
+    }
     return (
         <>
             <li className="flex items-center justify-between">
@@ -34,18 +38,14 @@ const ListItemView = ({ listItem }: ListItemViewProps) => {
 
                 <div className="flex text-3xl md:text-lg">
                     <button
-                        onClick={() => setQuantity(value => {
-                            return value + 1;
-                        })}
+                        onClick={() => { handleClick(quantity + 1) }}
                         className="px-2 mx-1 rounded-l-xl bg-seagreen-500"
                     >
                         +
                     </button>
                     {quantity}
                     <button
-                        onClick={() => setQuantity(value => {
-                            return value - 1;
-                        })}
+                        onClick={() => { handleClick(quantity - 1) }}
                         className="px-2 mx-1 rounded-r-xl bg-sunset-600"
                     >
                         -

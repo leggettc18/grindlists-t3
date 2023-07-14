@@ -1,15 +1,22 @@
-import { useEffect, useCallback, type DependencyList } from 'react';
+import { useEffect, useMemo, useRef } from "react";
+import debounce from "lodash.debounce";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function useDebounceEffect(effect: any, deps: DependencyList, delay = 250) {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const callback = useCallback(effect, deps);
+const useDebounce = <R extends () => void>(callback: R, delay?: number) => {
+    const ref = useRef<R>();
 
     useEffect(() => {
-        // eslint-disable-next-line @typescript-eslint/no-implied-eval, @typescript-eslint/no-unsafe-argument
-        const timeout = setTimeout(callback, delay);
-        return () => clearTimeout(timeout);
-    }, [callback, delay]);
+        ref.current = callback;
+    }, [callback]);
+
+    const debouncedCallback = useMemo(() => {
+        const func = () => {
+            ref.current?.();
+        };
+
+        return debounce(func, delay || 500);
+    }, [delay]);
+
+    return debouncedCallback;
 }
 
-export default useDebounceEffect;
+export default useDebounce;
